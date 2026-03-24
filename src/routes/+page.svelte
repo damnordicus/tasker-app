@@ -81,11 +81,55 @@
 		'2': 'bg-amber-900/30 text-amber-500 border border-amber-600/40',
 		'3': 'bg-red-900/30 text-red-600 border border-red-600/40'
 	};
+
+	// Konami code easter egg
+	const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight'];
+	let konamiProgress = $state(0);
+	let konamiActive = $state(false);
+
+	function handleKeydown(e: KeyboardEvent) {
+		// Don't fire when typing in inputs
+		if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement) return;
+		if (e.key === KONAMI[konamiProgress]) {
+			konamiProgress++;
+			if (konamiProgress === KONAMI.length) {
+				konamiProgress = 0;
+				konamiActive = true;
+			}
+		} else {
+			konamiProgress = e.key === KONAMI[0] ? 1 : 0;
+		}
+	}
 </script>
 
 <svelte:head>
 	<title>Phoenix Spark - Additive Tasker</title>
 </svelte:head>
+
+<svelte:window onkeydown={handleKeydown} />
+
+{#if konamiActive}
+	<!-- Konami Easter Egg Overlay -->
+	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+	<div
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+		onclick={() => { konamiActive = false; }}
+	>
+		<div class="relative mx-4 max-w-sm rounded-2xl border border-orange-500/40 bg-zinc-900 p-8 text-center shadow-2xl shadow-orange-500/10">
+			<div class="mb-4 text-5xl"><img src="https://cataas.com/cat"/></div>
+			<h2 class="mb-1 text-2xl font-bold text-orange-500">Konami Code!</h2>
+			<p class="mb-1 text-sm text-zinc-400">↑ ↑ ↓ ↓ ← → ← →</p>
+			<p class="mt-4 text-base font-medium text-white">+30 Tasks Granted</p>
+			<p class="mt-1 text-xs text-zinc-500">...just kidding. Good luck out there.</p>
+			<button
+				onclick={() => { konamiActive = false; }}
+				class="mt-6 rounded-lg bg-orange-500 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
+			>
+				Back to work
+			</button>
+		</div>
+	</div>
+{/if}
 
 <div class="min-h-screen pb-1 bg-zinc-700">
 	<!-- Sticky header + tabs -->
